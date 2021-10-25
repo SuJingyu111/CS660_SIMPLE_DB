@@ -2,10 +2,7 @@ package simpledb;
 
 import java.io.*;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * BufferPool manages the reading and writing of pages into memory from
@@ -148,6 +145,16 @@ public class BufferPool {
             throws DbException, IOException, TransactionAbortedException {
         // some code goes here
         // not necessary for lab1
+        ArrayList<Page> dirtyPages = Database.getCatalog().getDatabaseFile(tableId).insertTuple(tid, t);
+        for (Page dPage : dirtyPages) {
+            dPage.markDirty(true, tid);
+            if (!pages.containsKey(dPage.getId())) {
+                while (pages.size() >= poolSize) {
+                    evictPage();
+                }
+            }
+            pages.put(dPage.getId(), dPage);
+        }
     }
 
     /**

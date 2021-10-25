@@ -64,6 +64,14 @@ public class BTreePageId implements PageId {
 	}
 
 	/**
+	 * Set the category of this page
+	 * New API
+	 */
+	public void setPgcateg(int newPgcateg) {
+		pgcateg = newPgcateg;
+	}
+
+	/**
 	 * @return a hash code for this page, represented by the concatenation of
 	 *   the table number, page number, and pgcateg (needed if a PageId is used as a
 	 *   key in a hash table in the BufferPool, for example.)
