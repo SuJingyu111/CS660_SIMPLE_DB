@@ -199,11 +199,11 @@ public class BTreeFile implements DbFile {
 		if (pid.pgcateg() == BTreePageId.LEAF) {
 			return (BTreeLeafPage) getPage(tid, dirtypages, pid, perm);
 		}
-		Iterator<BTreeEntry> it = ((BTreeInternalPage) getPage(tid, dirtypages, pid, Permissions.READ_ONLY)).iterator();
+		Iterator<BTreeEntry> it = ((BTreeInternalPage) getPage(tid, dirtypages, pid, perm)).iterator();
 		BTreeEntry thisEnt = null;
 		while (it.hasNext()) {
 			thisEnt = it.next();
-			if (f == null || !f.compare(Op.GREATER_THAN_OR_EQ, thisEnt.getKey())) {
+			if (f == null || f.compare(Op.LESS_THAN_OR_EQ, thisEnt.getKey())) {
 				return findLeafPage(tid, dirtypages, thisEnt.getLeftChild(), perm, f);
 			}
 		}
@@ -264,30 +264,26 @@ public class BTreeFile implements DbFile {
 		Iterator<Tuple> oldRevIt = page.reverseIterator();
 		//Move tuples to new page
 		Tuple thisTuple = null;
-		int oldSize = page.getNumTuples(), moveNum = oldSize % 2 == 1 ? oldSize >> 1 : (oldSize >> 1) + 1;
+		int oldSize = page.getNumTuples(), moveNum = oldSize >> 1;
 		for (int i = 0; i < moveNum; i++) {
-			if (!oldRevIt.hasNext()) {
-				break;
-			}
 			thisTuple = oldRevIt.next();
 			page.deleteTuple(thisTuple);
 			newPage.insertTuple(thisTuple);
 		}
 		//Set sibling pointers
 		BTreePageId oldRightPageId = page.getRightSiblingId();
-		page.setRightSiblingId(newPage.getId());
-		newPage.setRightSiblingId(oldRightPageId);
-		newPage.setLeftSiblingId(page.getId());
 		if (oldRightPageId != null) {
 			BTreeLeafPage oldRightPage = (BTreeLeafPage) getPage(tid, dirtypages, oldRightPageId, Permissions.READ_WRITE);
 			oldRightPage.setLeftSiblingId(newPage.getId());
 		}
+		page.setRightSiblingId(newPage.getId());
+		newPage.setLeftSiblingId(page.getId());
+		newPage.setRightSiblingId(oldRightPageId);
 		//copy up to parent
-		assert thisTuple != null;
-		Field copyKey = thisTuple.getField(keyField);
+		Field copyKey = newPage.iterator().next().getField(keyField);
 		BTreeInternalPage parentPage = getParentWithEmptySlots(tid, dirtypages, page.getParentId(), copyKey);
-		newPage.setParentId(parentPage.getParentId());
 		parentPage.insertEntry(new BTreeEntry(copyKey, page.getId(), newPage.getId()));
+		updateParentPointers(tid, dirtypages, parentPage);
 		//update dirty pages
 		dirtypages.put(page.getId(), page);
 		dirtypages.put(newPage.getId(), newPage);

@@ -148,12 +148,6 @@ public class BufferPool {
         ArrayList<Page> dirtyPages = Database.getCatalog().getDatabaseFile(tableId).insertTuple(tid, t);
         for (Page dPage : dirtyPages) {
             dPage.markDirty(true, tid);
-            if (!pages.containsKey(dPage.getId())) {
-                while (pages.size() >= poolSize) {
-                    evictPage();
-                }
-            }
-            pages.put(dPage.getId(), dPage);
         }
     }
 
