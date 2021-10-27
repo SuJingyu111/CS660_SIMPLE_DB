@@ -264,7 +264,7 @@ public class BTreeFile implements DbFile {
 		Iterator<Tuple> oldRevIt = page.reverseIterator();
 		//Move tuples to new page
 		Tuple thisTuple = null;
-		int oldSize = page.getNumTuples(), moveNum = oldSize % 2 == 1 ? (oldSize >> 1) + 1 : oldSize >> 1;
+		int oldSize = page.getNumTuples(), moveNum = oldSize >> 1;
 		for (int i = 0; i < moveNum; i++) {
 			thisTuple = oldRevIt.next();
 			page.deleteTuple(thisTuple);
@@ -322,7 +322,7 @@ public class BTreeFile implements DbFile {
 		Iterator<BTreeEntry> oldRevIt = page.reverseIterator();
 		//Move tuples to new page
 		BTreeEntry thisEnt = null;
-		int oldSize = page.getNumEntries(), moveNum = oldSize % 2 == 1 ? oldSize >> 1 : (oldSize >> 1) - 1;
+		int oldSize = page.getNumEntries(), moveNum = oldSize >> 1;
 		for (int i = 0; i < moveNum; i++) {
 			if (!oldRevIt.hasNext()) {
 				break;
