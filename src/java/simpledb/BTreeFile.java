@@ -740,7 +740,7 @@ public class BTreeFile implements DbFile {
 		// get the number of nodes to transfer
 		int ogSiblingEntryNum = leftSibling.getNumEntries();
 		int ogSelfEntryNum = page.getNumEntries();
-		int transferEntryNum = (ogSelfEntryNum - ogSiblingEntryNum) / 2;
+		int transferEntryNum = (ogSiblingEntryNum - ogSelfEntryNum) / 2;
 
 		// get the reverse iterator
 		Iterator<BTreeEntry> iterator = leftSibling.reverseIterator();
@@ -791,7 +791,7 @@ public class BTreeFile implements DbFile {
 		// pointers of all children in the entries that were moved.
 		int ogSiblingEntryNum = rightSibling.getNumEntries();
 		int ogSelfEntryNum = page.getNumEntries();
-		int transferEntryNum = (ogSelfEntryNum - ogSiblingEntryNum) / 2;
+		int transferEntryNum = (ogSiblingEntryNum - ogSelfEntryNum) / 2;
 
 		// get the reverse iterator
 		Iterator<BTreeEntry> iterator = rightSibling.iterator();
