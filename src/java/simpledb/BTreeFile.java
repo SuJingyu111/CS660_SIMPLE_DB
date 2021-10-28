@@ -640,6 +640,27 @@ public class BTreeFile implements DbFile {
         // Move some of the tuples from the sibling to the page so
 		// that the tuples are evenly distributed. Be sure to update
 		// the corresponding parent entry.
+		int ogSiblingTupleNum = sibling.getNumTuples();
+		int ogSelfTupleNum = page.getNumTuples();
+		int transferTupleNum = (ogSelfTupleNum - ogSiblingTupleNum) / 2;
+
+		Iterator<Tuple> siblingIterator;
+		if (isRightSibling) {
+			siblingIterator = sibling.iterator();
+		} else {
+			siblingIterator = sibling.reverseIterator();
+		}
+
+		Tuple curTuple = null;
+		for (int i = 0; i < transferTupleNum; i++) {
+			curTuple = siblingIterator.next();
+			sibling.deleteTuple(curTuple);
+			page.insertTuple(curTuple);
+		}
+
+		Field newKey = curTuple.getField(keyField);
+		entry.setKey(newKey);
+		parent.updateEntry(entry);
 	}
 
 	/**
@@ -712,10 +733,34 @@ public class BTreeFile implements DbFile {
 	 * @throws IOException
 	 * @throws TransactionAbortedException
 	 */
-	protected void stealFromLeftInternalPage(TransactionId tid, HashMap<PageId, Page> dirtypages, 
+		protected void stealFromLeftInternalPage(TransactionId tid, HashMap<PageId, Page> dirtypages,
 			BTreeInternalPage page, BTreeInternalPage leftSibling, BTreeInternalPage parent,
 			BTreeEntry parentEntry) throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
+		// get the number of nodes to transfer
+		int ogSiblingEntryNum = leftSibling.getNumEntries();
+		int ogSelfEntryNum = page.getNumEntries();
+		int transferEntryNum = (ogSelfEntryNum - ogSiblingEntryNum) / 2;
+
+		// get the reverse iterator
+		Iterator<BTreeEntry> iterator = leftSibling.reverseIterator();
+
+		// start transfer
+		BTreeEntry curEntry = null;
+		BTreePageId curTargetLeftId = null;
+		for (int i = 0; i < transferEntryNum; i++) {
+			// get the entry
+			curEntry = iterator.next();
+			// delete from left
+			leftSibling.deleteKeyAndRightChild(curEntry);
+			// get the current left most entry's left child in target page
+			curTargetLeftId = page.iterator().next().getLeftChild();
+			// get the one in the parent and move it to target page
+			page.insertEntry(new BTreeEntry(parentEntry.getKey(), curEntry.getRightChild(), curTargetLeftId));
+			// add to parent
+			parentEntry.setKey(curEntry.getKey());
+			parent.updateEntry(parentEntry);
+		}
 	}
 	
 	/**
@@ -744,6 +789,29 @@ public class BTreeFile implements DbFile {
 		// that the entries are evenly distributed. Be sure to update
 		// the corresponding parent entry. Be sure to update the parent
 		// pointers of all children in the entries that were moved.
+		int ogSiblingEntryNum = rightSibling.getNumEntries();
+		int ogSelfEntryNum = page.getNumEntries();
+		int transferEntryNum = (ogSelfEntryNum - ogSiblingEntryNum) / 2;
+
+		// get the reverse iterator
+		Iterator<BTreeEntry> iterator = rightSibling.iterator();
+
+		// start transfer
+		BTreeEntry curEntry = null;
+		BTreePageId curTargetRightId = null;
+		for (int i = 0; i < transferEntryNum; i++) {
+			// get the entry
+			curEntry = iterator.next();
+			// delete from right
+			rightSibling.deleteKeyAndRightChild(curEntry);
+			// get the current right most entry's right child in target page
+			curTargetRightId = page.reverseIterator().next().getRightChild();
+			// get the one in the parent and move it to target page
+			page.insertEntry(new BTreeEntry(parentEntry.getKey(), curTargetRightId, curEntry.getLeftChild()));
+			// add to parent
+			parentEntry.setKey(curEntry.getKey());
+			parent.updateEntry(parentEntry);
+		}
 	}
 	
 	/**
