@@ -642,7 +642,7 @@ public class BTreeFile implements DbFile {
 		// the corresponding parent entry.
 		int ogSiblingTupleNum = sibling.getNumTuples();
 		int ogSelfTupleNum = page.getNumTuples();
-		int transferTupleNum = (ogSelfTupleNum - ogSiblingTupleNum) / 2;
+		int transferTupleNum = (ogSiblingTupleNum - ogSelfTupleNum) / 2;
 
 		Iterator<Tuple> siblingIterator;
 		if (isRightSibling) {
