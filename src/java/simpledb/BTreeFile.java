@@ -849,7 +849,8 @@ public class BTreeFile implements DbFile {
 		Iterator<Tuple> iterator = rightPage.iterator();
 		Tuple curTuple = null;
 		// move all tuples in right leaf page to left leaf page
-		for (int i = 0; i < rightPage.getNumTuples(); i++) {
+		int ogNumRightTuples = rightPage.getNumTuples();
+		for (int i = 0; i < ogNumRightTuples; i++) {
 			curTuple = iterator.next();
 			rightPage.deleteTuple(curTuple);
 			leftPage.insertTuple(curTuple);
