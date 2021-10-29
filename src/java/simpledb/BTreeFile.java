@@ -871,7 +871,7 @@ public class BTreeFile implements DbFile {
 		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
 
 		// delete parent entry
-		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
+		deleteParentEntry(tid, dirtypages, rightPage, parent, parentEntry);
 
 	}
 
