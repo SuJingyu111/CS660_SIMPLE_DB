@@ -845,6 +845,8 @@ public class BTreeFile implements DbFile {
 		// Delete the entry in the parent corresponding to the two pages that are merging -
 		// deleteParentEntry() will be useful here
 
+		// TODO, handle the case when parent is below minimum occupancy rate
+
 		// get the iterator
 		Iterator<Tuple> iterator = rightPage.iterator();
 		Tuple curTuple = null;
@@ -904,6 +906,32 @@ public class BTreeFile implements DbFile {
 		// and make the right page available for reuse
 		// Delete the entry in the parent corresponding to the two pages that are merging -
 		// deleteParentEntry() will be useful here
+
+		// TODO, handle the case when parent is below minimum occupancy rate
+
+		// get the iterator
+		Iterator<BTreeEntry> iterator = rightPage.iterator();
+		BTreeEntry curEntry = null;
+
+		// add the parent entry to the target page
+		leftPage.insertEntry(new BTreeEntry(parentEntry.getKey(),
+				leftPage.reverseIterator().next().getRightChild(),
+				rightPage.iterator().next().getLeftChild()));
+		deleteParentEntry(tid, dirtypages, rightPage, parent, parentEntry);
+
+		// move all tuples in right leaf page to left leaf page
+		int ogNumRightEntry = rightPage.getNumEntries();
+		for (int i = 0; i < ogNumRightEntry; i++) {
+			curEntry = iterator.next();
+			rightPage.deleteKeyAndLeftChild(curEntry);
+			leftPage.insertEntry(curEntry);
+		}
+
+		// set right leaf page empty for reuse
+		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
+
+		// delete parent entry
+		updateParentPointers(tid, dirtypages, leftPage);
 	}
 	
 	/**
