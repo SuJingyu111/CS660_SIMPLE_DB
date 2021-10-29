@@ -760,6 +760,7 @@ public class BTreeFile implements DbFile {
 			// add to parent
 			parentEntry.setKey(curEntry.getKey());
 			parent.updateEntry(parentEntry);
+			updateParentPointers(tid, dirtypages, page);
 		}
 	}
 	
@@ -811,6 +812,7 @@ public class BTreeFile implements DbFile {
 			// add to parent
 			parentEntry.setKey(curEntry.getKey());
 			parent.updateEntry(parentEntry);
+			updateParentPointers(tid, dirtypages, page);
 		}
 	}
 	
