@@ -658,6 +658,10 @@ public class BTreeFile implements DbFile {
 			page.insertTuple(curTuple);
 		}
 
+		if (isRightSibling) {
+			curTuple = siblingIterator.next();
+		}
+
 		Field newKey = curTuple.getField(keyField);
 		entry.setKey(newKey);
 		parent.updateEntry(entry);
