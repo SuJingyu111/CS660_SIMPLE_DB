@@ -921,7 +921,7 @@ public class BTreeFile implements DbFile {
 		leftPage.insertEntry(new BTreeEntry(parentEntry.getKey(),
 				leftPage.reverseIterator().next().getRightChild(),
 				rightPage.iterator().next().getLeftChild()));
-		deleteParentEntry(tid, dirtypages, rightPage, parent, parentEntry);
+		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
 
 		// move all tuples in right leaf page to left leaf page
 		int ogNumRightEntry = rightPage.getNumEntries();
@@ -934,7 +934,6 @@ public class BTreeFile implements DbFile {
 		// set right leaf page empty for reuse
 		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
 
-		// delete parent entry
 		updateParentPointers(tid, dirtypages, leftPage);
 	}
 	
