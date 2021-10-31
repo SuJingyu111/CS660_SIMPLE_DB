@@ -851,6 +851,9 @@ public class BTreeFile implements DbFile {
 
 		// TODO, handle the case when parent is below minimum occupancy rate
 
+		// delete parent entry
+		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
+
 		// get the iterator
 		Iterator<Tuple> iterator = rightPage.iterator();
 		Tuple curTuple = null;
@@ -873,9 +876,6 @@ public class BTreeFile implements DbFile {
 
 		// set right leaf page empty for reuse
 		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
-
-		// delete parent entry
-		deleteParentEntry(tid, dirtypages, leftPage, parent, parentEntry);
 
 	}
 
