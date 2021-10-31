@@ -880,6 +880,11 @@ public class BTreeFile implements DbFile {
 		}
 		leftPage.setRightSiblingId(rRID);
 
+		dirtypages.put(leftPage.getId(), leftPage);
+		leftPage.markDirty(true, tid);
+		dirtypages.put(parent.getId(), parent);
+		parent.markDirty(true, tid);
+
 		// set right leaf page empty for reuse
 		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
 
@@ -939,6 +944,11 @@ public class BTreeFile implements DbFile {
 
 		// set right leaf page empty for reuse
 		setEmptyPage(tid, dirtypages, rightPage.getId().pageNumber());
+
+		dirtypages.put(leftPage.getId(), leftPage);
+		leftPage.markDirty(true, tid);
+		dirtypages.put(parent.getId(), parent);
+		parent.markDirty(true, tid);
 
 		updateParentPointers(tid, dirtypages, leftPage);
 	}
