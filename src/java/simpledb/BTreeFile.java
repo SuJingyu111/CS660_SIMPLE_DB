@@ -287,8 +287,11 @@ public class BTreeFile implements DbFile {
 		newPage.setParentId(parentPage.getId());
 		//update dirty pages
 		dirtypages.put(page.getId(), page);
+		page.markDirty(true, tid);
 		dirtypages.put(newPage.getId(), newPage);
+		newPage.markDirty(true, tid);
 		dirtypages.put(parentPage.getParentId(), parentPage);
+		parentPage.markDirty(true, tid);
 		return field.compare(Op.LESS_THAN_OR_EQ, copyKey) ? page : newPage;
 	}
 
@@ -342,8 +345,11 @@ public class BTreeFile implements DbFile {
 		updateParentPointers(tid, dirtypages, newPage);
 		//update dirty pages
 		dirtypages.put(page.getId(), page);
+		page.markDirty(true, tid);
 		dirtypages.put(newPage.getId(), newPage);
+		newPage.markDirty(true, tid);
 		dirtypages.put(parentPage.getId(), parentPage);
+		parentPage.markDirty(true, tid);
 		return field.compare(Op.LESS_THAN_OR_EQ, key.getKey()) ? page : newPage;
 	}
 	
