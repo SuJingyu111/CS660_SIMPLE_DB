@@ -17,7 +17,10 @@ HashMap to LinkedHashMap.
 For insertion, to implement split methods, we first create a new page to contain the tuples/B+ tree entries, then move the
 data to the new page, update parent/children pointers and sibling pointers(leaf pages), and mark these pages as dirty for
 disk flushes.
-For deltetion ####
+For deltetion, we implement redistribution and merge function. In redistribution, nodes are been transfer from one page to
+to target page so that they have same or +-1 number of nodes. For merge in leaf, 2 pages are merged and parent entry is
+deleted. For merge in non-leaf page, parent entry is added first to the target page and entries in the other nodes are
+added.
 
 =====================================================================================
 2. Discuss and justify any changes you made to the API.
