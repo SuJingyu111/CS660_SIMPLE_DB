@@ -43,6 +43,7 @@ public class BTreePageId implements PageId {
 		this.pgcateg = pgcateg;
 	}
 
+
 	/** @return the table associated with this PageId */
 	public int getTableId() {
 		return tableId;
@@ -63,13 +64,6 @@ public class BTreePageId implements PageId {
 		return pgcateg;
 	}
 
-	/**
-	 * Set the category of this page
-	 * New API
-	 */
-	public void setPgcateg(int newPgcateg) {
-		pgcateg = newPgcateg;
-	}
 
 	/**
 	 * @return a hash code for this page, represented by the concatenation of
